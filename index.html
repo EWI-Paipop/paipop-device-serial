@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'none'; img-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <title>Paipop 设备序列号查询</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <main class="shell">
+    <header class="hero">
+      <div class="brand-mark" aria-hidden="true"><span>CT</span></div>
+      <div>
+        <p class="eyebrow">PAIPOP · DEVICE TOOL</p>
+        <h1>设备序列号查询</h1>
+        <p class="lead">生成匿名设备序列号，或从本地 CSV 中反查正式 SN。</p>
+      </div>
+    </header>
+
+    <section class="key-panel" aria-labelledby="key-title">
+      <div class="section-heading">
+        <div>
+          <span class="step">密钥</span>
+          <h2 id="key-title">产品密钥</h2>
+        </div>
+        <span class="privacy-pill">仅在本机内存中使用</span>
+      </div>
+      <div class="input-row">
+        <label class="field grow">
+          <span>64 位十六进制密钥</span>
+          <input id="product-key" type="password" autocomplete="off"
+                 spellcheck="false" maxlength="64"
+                 placeholder="粘贴产品密钥">
+        </label>
+        <button id="toggle-key" class="secondary compact" type="button"
+                aria-pressed="false">显示</button>
+      </div>
+      <p class="hint">网页不会上传、保存或预填密钥；刷新页面后需重新输入。</p>
+    </section>
+
+    <div class="tool-grid">
+      <section class="tool-card" aria-labelledby="generate-title">
+        <div class="section-heading">
+          <div>
+            <span class="step">01</span>
+            <h2 id="generate-title">生成设备序列号</h2>
+          </div>
+        </div>
+        <label class="field">
+          <span>正式 SN</span>
+          <input id="formal-sn" type="text" autocomplete="off"
+                 spellcheck="false" maxlength="64"
+                 placeholder="例如 Paipop_...">
+        </label>
+        <button id="generate" class="primary" type="button">生成序列号</button>
+        <div class="result" aria-live="polite">
+          <span class="result-label">设备序列号</span>
+          <output id="generated-serial">—</output>
+          <button id="copy-serial" class="text-button" type="button" hidden>复制</button>
+        </div>
+        <p id="generate-status" class="status" role="status"></p>
+      </section>
+
+      <section class="tool-card" aria-labelledby="lookup-title">
+        <div class="section-heading">
+          <div>
+            <span class="step">02</span>
+            <h2 id="lookup-title">反查正式 SN</h2>
+          </div>
+        </div>
+        <label class="field">
+          <span>设备序列号</span>
+          <input id="lookup-serial" type="text" autocomplete="off"
+                 spellcheck="false" maxlength="32"
+                 placeholder="CT1-XXXX-XXXX-XXXX-XXXX-X">
+        </label>
+        <label class="file-field">
+          <input id="csv-file" type="file" accept=".csv,text/csv">
+          <span class="file-title">选择带有 <b>sn</b> 列的 CSV</span>
+          <span id="file-name" class="file-name">尚未选择文件</span>
+        </label>
+        <button id="lookup" class="primary" type="button">开始查询</button>
+        <div class="result" aria-live="polite">
+          <span class="result-label">匹配的正式 SN</span>
+          <output id="matched-sn">—</output>
+          <button id="copy-sn" class="text-button" type="button" hidden>复制</button>
+        </div>
+        <p id="lookup-status" class="status" role="status"></p>
+      </section>
+    </div>
+
+    <footer>
+      <span class="lock-dot" aria-hidden="true"></span>
+      所有计算与 CSV 检索均在当前浏览器本地完成，不会发送到服务器。
+    </footer>
+  </main>
+  <script type="module" src="./app.js"></script>
+</body>
+</html>

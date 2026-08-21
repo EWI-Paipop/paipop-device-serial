@@ -1,0 +1,8 @@
+{
+  "name": "paipop-device-serial",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test *.test.mjs"
+  }
+}

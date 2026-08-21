@@ -65,4 +65,20 @@ test('rejects invalid keys and formal SN values', async () => {
     deriveDeviceSerial('contains space', key, webcrypto),
     /printable ASCII/i,
   );
+  await assert.rejects(
+    deriveDeviceSerial('A'.repeat(64), key, webcrypto),
+    /1-63 printable ASCII/i,
+  );
+});
+
+test('rejects CSV input beyond bounded parser limits', async () => {
+  await assert.rejects(
+    findFormalSnInCsv(
+      `sn\n${'A'.repeat(1025)}`,
+      'CT1-ZYN5-5H8B-718S-AAFB-4',
+      key,
+      webcrypto,
+    ),
+    /cell.*1024/i,
+  );
 });

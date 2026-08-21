@@ -13,6 +13,7 @@ const fileName = byId('file-name');
 const lookupSerial = byId('lookup-serial');
 const matchedSn = byId('matched-sn');
 const lookupStatus = byId('lookup-status');
+const MAX_CSV_FILE_BYTES = 5 * 1024 * 1024;
 
 function setStatus(element, message = '', kind = '') {
   element.textContent = message;
@@ -75,6 +76,10 @@ byId('lookup').addEventListener('click', async (event) => {
   byId('copy-sn').hidden = true;
   if (!file) {
     setStatus(lookupStatus, '请先选择 CSV 文件。', 'error');
+    return;
+  }
+  if (file.size > MAX_CSV_FILE_BYTES) {
+    setStatus(lookupStatus, 'CSV 文件不能超过 5 MB。', 'error');
     return;
   }
 

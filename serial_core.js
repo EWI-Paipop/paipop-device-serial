@@ -1,6 +1,9 @@
 const ALPHABET = '0123456789ABCDEFGHJKMNPQRSTVWXYZ';
 const LABEL = 'PAIPOP-CT-SERIAL-V1';
 const encoder = new TextEncoder();
+const CSV_MAX_ROWS = 50000;
+const CSV_MAX_COLUMNS = 64;
+const CSV_MAX_CELL_LENGTH = 1024;
 
 export function crc5Usb(bytes) {
   let crc = 0x1f;
@@ -30,9 +33,9 @@ function parseKeyHex(keyHex) {
 
 function validateFormalSn(formalSn) {
   if (typeof formalSn !== 'string' ||
-      formalSn.length < 1 || formalSn.length > 64 ||
+      formalSn.length < 1 || formalSn.length > 63 ||
       !/^[\x21-\x7e]+$/.test(formalSn)) {
-    throw new Error('Formal SN must be 1-64 printable ASCII characters without spaces.');
+    throw new Error('Formal SN must be 1-63 printable ASCII characters without spaces.');
   }
   return formalSn;
 }
@@ -110,28 +113,44 @@ function parseCsv(text) {
   let rowNumber = 1;
   let rowStart = 1;
 
+  const appendCharacter = (character) => {
+    if (cell.length >= CSV_MAX_CELL_LENGTH) {
+      throw new Error(`CSV cell exceeds ${CSV_MAX_CELL_LENGTH} characters.`);
+    }
+    cell += character;
+  };
+  const finishCell = () => {
+    if (cells.length >= CSV_MAX_COLUMNS) {
+      throw new Error(`CSV row exceeds ${CSV_MAX_COLUMNS} columns.`);
+    }
+    cells.push(cell);
+    cell = '';
+  };
+
   for (let index = 0; index <= text.length; index += 1) {
     const character = index < text.length ? text[index] : '\n';
     if (quoted) {
       if (character === '"' && text[index + 1] === '"') {
-        cell += '"';
+        appendCharacter('"');
         index += 1;
       } else if (character === '"') {
         quoted = false;
       } else {
-        cell += character;
+        appendCharacter(character);
         if (character === '\n') rowNumber += 1;
       }
     } else if (character === '"' && cell.length === 0) {
       quoted = true;
     } else if (character === ',') {
-      cells.push(cell);
-      cell = '';
+      finishCell();
     } else if (character === '\r' && text[index + 1] === '\n') {
       continue;
     } else if (character === '\n') {
-      cells.push(cell);
+      finishCell();
       if (cells.some((value) => value.length > 0)) {
+        if (rows.length >= CSV_MAX_ROWS) {
+          throw new Error(`CSV exceeds ${CSV_MAX_ROWS} rows.`);
+        }
         rows.push({ cells, rowNumber: rowStart });
       }
       cells = [];
@@ -139,7 +158,7 @@ function parseCsv(text) {
       rowNumber += 1;
       rowStart = rowNumber;
     } else {
-      cell += character;
+      appendCharacter(character);
     }
   }
   if (quoted) throw new Error('CSV contains an unterminated quoted field.');
